@@ -1,0 +1,65 @@
+{
+    "Bacterial_Blight": {
+        "name_id": "Hawar Daun Bakteri",
+        "name_scientific": "Xanthomonas oryzae pv. oryzae",
+        "description": "Hawar Daun Bakteri (HDB) adalah penyakit padi yang disebabkan oleh bakteri Xanthomonas oryzae. Penyakit ini merupakan salah satu penyakit paling merusak pada tanaman padi di Asia.",
+        "symptoms": "Gejala dimulai dengan bercak kuning pada tepi daun yang kemudian meluas membentuk lesi memanjang berwarna kuning hingga putih. Daun yang terinfeksi menjadi layu dan mengering dari ujung.",
+        "causes": "Bakteri menyebar melalui air irigasi, percikan air hujan, dan alat-alat pertanian yang terkontaminasi. Kondisi lembab dan suhu hangat mendukung perkembangan penyakit.",
+        "treatment": "Gunakan bakterisida berbahan aktif streptomycin atau kasugamycin. Cabut dan musnahkan tanaman yang terinfeksi parah. Atur jarak tanam yang baik untuk sirkulasi udara.",
+        "prevention": "Gunakan varietas tahan seperti Code, Cisadane, atau IR64. Lakukan rotasi tanaman. Jaga kebersihan lahan dan alat pertanian."
+    },
+    "Brown_Spot": {
+        "name_id": "Bercak Coklat",
+        "name_scientific": "Bipolaris oryzae",
+        "description": "Bercak Coklat adalah penyakit jamur yang menyerang daun padi dan dapat menyebabkan penurunan hasil panen yang signifikan terutama pada kondisi kekurangan nutrisi.",
+        "symptoms": "Bercak berbentuk oval hingga bulat berwarna coklat dengan tepi kekuningan muncul pada daun. Bercak berukuran 0.5-2 cm dengan bagian tengah berwarna abu-abu.",
+        "causes": "Disebabkan oleh jamur Bipolaris oryzae. Jamur berkembang optimal pada kondisi kelembaban tinggi dan suhu 25-30°C. Tanaman yang kekurangan nutrisi terutama kalium dan silikon lebih rentan.",
+        "treatment": "Aplikasi fungisida berbahan aktif mancozeb, propiconazole, atau azoxystrobin. Perbaiki kesuburan tanah dengan pemupukan berimbang.",
+        "prevention": "Gunakan benih sehat dan bersertifikat. Perlakuan benih dengan fungisida sebelum tanam. Berikan pupuk lengkap terutama kalium dan fosfor."
+    },
+    "Leaf smut": {
+        "name_id": "Jamur Daun",
+        "name_scientific": "Entyloma oryzae",
+        "description": "Jamur Daun adalah penyakit yang menyebabkan bercak hitam kecil pada permukaan daun padi, umumnya tidak terlalu merusak kecuali pada serangan berat.",
+        "symptoms": "Bercak kecil hitam atau coklat gelap berbentuk bulat atau lonjong berukuran 0.5-5 mm tersebar pada permukaan daun. Bercak sedikit menonjol dan berisi spora jamur berwarna hitam.",
+        "causes": "Disebabkan oleh jamur Entyloma oryzae. Berkembang pada kondisi lembab dan suhu moderat. Spora tersebar melalui angin dan percikan air.",
+        "treatment": "Biasanya tidak memerlukan pengendalian khusus karena kerusakannya ringan. Pada serangan berat, aplikasi fungisida sistemik dapat membantu.",
+        "prevention": "Jaga kesuburan tanah dengan pemupukan berimbang. Gunakan benih sehat. Hindari kepadatan tanaman berlebihan."
+    },
+    "Healthy": {
+        "name_id": "Daun Sehat",
+        "name_scientific": null,
+        "description": "Daun padi yang sehat menunjukkan pertumbuhan optimal tanpa gejala penyakit. Tanaman sehat memiliki produktivitas tinggi dan kualitas gabah yang baik.",
+        "symptoms": "Daun berwarna hijau segar dan mengkilap. Tidak ada bercak, lesi, atau perubahan warna abnormal. Pertumbuhan tanaman normal dan tegak.",
+        "causes": "Kondisi tanaman sehat dicapai melalui budidaya yang tepat: penggunaan benih berkualitas, pemupukan berimbang, pengairan yang baik.",
+        "treatment": "Tidak diperlukan pengobatan. Lanjutkan praktik budidaya yang baik untuk mempertahankan kesehatan tanaman.",
+        "prevention": "Terus terapkan praktik budidaya padi yang baik (Good Agricultural Practices). Monitor tanaman secara rutin."
+    },
+    "Leaf_Blast": {
+        "name_id": "Blas Daun",
+        "name_scientific": "Pyricularia oryzae",
+        "description": "Blas Daun adalah penyakit jamur paling destruktif pada padi di seluruh dunia. Dapat menyerang daun, leher malai, dan buku batang.",
+        "symptoms": "Bercak berbentuk belah ketupat atau mata dengan ujung runcing berwarna abu-abu kecoklatan. Pusat bercak berwarna abu-abu dengan tepi coklat.",
+        "causes": "Disebabkan oleh jamur Pyricularia oryzae. Berkembang optimal pada suhu 25-28°C, kelembaban tinggi >90%, dan embun pagi.",
+        "treatment": "Aplikasi fungisida tricyclazole, isoprothiolane, atau azoxystrobin segera setelah gejala muncul. Ulangi aplikasi setiap 7-10 hari.",
+        "prevention": "Gunakan varietas tahan blas. Perlakuan benih dengan fungisida. Pemupukan berimbang dengan menghindari nitrogen berlebihan."
+    },
+    "Hispa": {
+        "name_id": "Penggerek Daun",
+        "name_scientific": "Dicladispa armigera",
+        "description": "Hama penggerek daun Hispa adalah serangga kecil yang merusak daun padi dengan cara memakan jaringan daun dari dalam.",
+        "symptoms": "Goresan atau terowongan putih memanjang dan paralel pada permukaan daun. Daun menjadi mengering dan berwarna putih kecoklatan.",
+        "causes": "Disebabkan oleh kumbang Dicladispa armigera. Larva dan dewasa memakan jaringan daun. Serangan meningkat pada musim hujan.",
+        "treatment": "Aplikasi insektisida berbahan aktif karbofuran, klorpirifos, atau fipronil. Cabut dan musnahkan daun yang terserang.",
+        "prevention": "Tanam varietas tahan. Hindari penanaman telat musim. Kurangi penggunaan nitrogen berlebihan."
+    },
+    "Sheath Blight": {
+        "name_id": "Hawar Pelepah",
+        "name_scientific": "Rhizoctonia solani",
+        "description": "Hawar Pelepah adalah penyakit jamur yang menyerang pelepah daun dan dapat menyebar ke daun serta malai.",
+        "symptoms": "Bercak lonjong tidak beraturan berwarna hijau keabuan pada pelepah daun dekat permukaan air. Bercak berkembang menjadi coklat dengan tepi lebih gelap.",
+        "causes": "Disebabkan oleh jamur Rhizoctonia solani. Jamur bertahan dalam tanah dan sisa tanaman. Berkembang optimal pada suhu 28-32°C.",
+        "treatment": "Aplikasi fungisida validamycin, hexaconazole, atau propiconazole pada pelepah yang terinfeksi. Kurangi genangan air.",
+        "prevention": "Gunakan varietas dengan ketahanan moderat. Kurangi kepadatan tanaman. Hindari nitrogen berlebihan."
+    }
+}
