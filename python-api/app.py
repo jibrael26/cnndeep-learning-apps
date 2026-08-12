@@ -1,6 +1,6 @@
 """
 Rice Plant Disease Detection - Flask API
-REST API for serving CNN predictions
+REST API for serving CNN predictions + Laravel Reverse Proxy
 """
 
 import os
@@ -8,10 +8,11 @@ import sys
 import json
 import traceback
 from datetime import datetime
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 import numpy as np
+import requests
 
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -30,6 +31,7 @@ app.config['MODEL_PATH'] = os.path.join(os.path.dirname(__file__), 'trained_mode
 app.config['CLASS_NAMES_PATH'] = os.path.join(os.path.dirname(__file__), 'trained_models', 'class_names.json')
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
+LARAVEL_INTERNAL_URL = "http://127.0.0.1:8080"
 
 # Create upload folder if not exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
@@ -38,7 +40,6 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 classifier = None
 preprocessor = ImagePreprocessor(target_size=(224, 224))
 
-# Model evaluation metrics (loaded from file if exists)
 evaluation_metrics = {
     'accuracy': 0.0,
     'precision': 0.0,
@@ -52,14 +53,11 @@ evaluation_metrics = {
 
 
 def allowed_file(filename):
-    """Check if file extension is allowed"""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 def load_model():
-    """Load the trained CNN model"""
     global classifier, evaluation_metrics
-    
     model_path = app.config['MODEL_PATH']
     class_names_path = app.config['CLASS_NAMES_PATH']
     
@@ -68,18 +66,15 @@ def load_model():
             classifier = RiceDiseaseClassifier()
             classifier.load(model_path)
             
-            # Load class names if available
             if os.path.exists(class_names_path):
                 with open(class_names_path, 'r') as f:
                     classifier.DISEASE_CLASSES = json.load(f)
             
-            # Load evaluation metrics if available
             metrics_path = os.path.join(os.path.dirname(model_path), 'evaluation_metrics.json')
             if os.path.exists(metrics_path):
                 with open(metrics_path, 'r') as f:
                     evaluation_metrics.update(json.load(f))
             
-            # Load training history if available
             history_files = [f for f in os.listdir(os.path.dirname(model_path)) 
                            if f.startswith('training_history_')]
             if history_files:
@@ -103,9 +98,10 @@ with app.app_context():
     model_loaded = load_model()
 
 
+# ==================== PYTHON API ENDPOINTS ====================
+
 @app.route('/health', methods=['GET'])
 def health_check():
-    """Health check endpoint"""
     return jsonify({
         'status': 'healthy',
         'model_loaded': classifier is not None,
@@ -115,169 +111,91 @@ def health_check():
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    """
-    Predict disease from uploaded image
-    
-    Request: multipart/form-data with 'image' field
-    Response: JSON with prediction results
-    """
     if classifier is None:
-        return jsonify({
-            'error': 'Model not loaded',
-            'message': 'The CNN model is not available. Please train the model first.'
-        }), 503
-    
+        return jsonify({'error': 'Model not loaded'}), 503
     if 'image' not in request.files:
-        return jsonify({
-            'error': 'No image provided',
-            'message': 'Please upload an image file'
-        }), 400
-    
+        return jsonify({'error': 'No image provided'}), 400
     file = request.files['image']
-    
-    if file.filename == '':
-        return jsonify({
-            'error': 'No file selected',
-            'message': 'Please select a file to upload'
-        }), 400
-    
-    if not allowed_file(file.filename):
-        return jsonify({
-            'error': 'Invalid file type',
-            'message': f'Allowed file types: {", ".join(ALLOWED_EXTENSIONS)}'
-        }), 400
+    if file.filename == '' or not allowed_file(file.filename):
+        return jsonify({'error': 'Invalid or missing file'}), 400
     
     try:
-        # Read image bytes
         image_bytes = file.read()
-        
-        # Preprocess image
         processed_image = preprocessor.preprocess(image_bytes)
-        
-        # Get prediction
         result = classifier.predict(processed_image)
-        
         return jsonify({
             'success': True,
             'prediction': {
                 'disease': result['predicted_class'],
                 'confidence': round(result['confidence'] * 100, 2),
-                'all_predictions': {
-                    k: round(v * 100, 2) 
-                    for k, v in result['all_predictions'].items()
-                }
+                'all_predictions': {k: round(v * 100, 2) for k, v in result['all_predictions'].items()}
             },
             'timestamp': datetime.now().isoformat()
         })
-    
     except Exception as e:
         traceback.print_exc()
-        return jsonify({
-            'error': 'Prediction failed',
-            'message': str(e)
-        }), 500
+        return jsonify({'error': 'Prediction failed', 'message': str(e)}), 500
 
 
 @app.route('/model-info', methods=['GET'])
 def model_info():
-    """Get model information and evaluation metrics"""
     return jsonify({
         'model_loaded': classifier is not None,
         'disease_classes': classifier.DISEASE_CLASSES if classifier else [],
         'num_classes': len(classifier.DISEASE_CLASSES) if classifier else 0,
-        'model_type': evaluation_metrics.get('model_type', 'custom'),
         'metrics': {
             'accuracy': round(evaluation_metrics.get('accuracy', 0) * 100, 2),
             'precision': round(evaluation_metrics.get('precision', 0) * 100, 2),
             'recall': round(evaluation_metrics.get('recall', 0) * 100, 2),
             'f1_score': round(evaluation_metrics.get('f1_score', 0) * 100, 2)
-        },
-        'confusion_matrix': evaluation_metrics.get('confusion_matrix'),
-        'training_history': evaluation_metrics.get('training_history'),
-        'last_trained': evaluation_metrics.get('last_trained')
-    })
-
-
-@app.route('/classes', methods=['GET'])
-def get_classes():
-    """Get list of disease classes with full information"""
-    # Load disease descriptions
-    descriptions_path = os.path.join(os.path.dirname(__file__), 'disease_descriptions.json')
-    disease_descriptions = {}
-    if os.path.exists(descriptions_path):
-        with open(descriptions_path, 'r', encoding='utf-8') as f:
-            disease_descriptions = json.load(f)
-    
-    # Get class names from model or default
-    class_names = classifier.DISEASE_CLASSES if classifier else RiceDiseaseClassifier.DISEASE_CLASSES
-    
-    # Build full disease list with descriptions
-    diseases = []
-    for name in class_names:
-        # Try exact match first, then case-insensitive
-        desc = disease_descriptions.get(name)
-        if not desc:
-            # Try case-insensitive match
-            for key in disease_descriptions:
-                if key.lower() == name.lower():
-                    desc = disease_descriptions[key]
-                    break
-        
-        disease_info = {
-            'name': name,
-            'name_id': desc.get('name_id', name) if desc else name,
-            'name_scientific': desc.get('name_scientific') if desc else None,
-            'description': desc.get('description', 'Deskripsi belum tersedia.') if desc else 'Deskripsi belum tersedia.',
-            'symptoms': desc.get('symptoms', '') if desc else '',
-            'causes': desc.get('causes', '') if desc else '',
-            'treatment': desc.get('treatment', '') if desc else '',
-            'prevention': desc.get('prevention', '') if desc else '',
         }
-        diseases.append(disease_info)
-    
-    return jsonify({
-        'classes': class_names,
-        'diseases': diseases,
-        'count': len(diseases)
     })
 
 
-@app.route('/reload-model', methods=['POST'])
-def reload_model():
-    """Reload the model from disk"""
-    global classifier
-    
-    success = load_model()
-    
-    if success:
-        return jsonify({
-            'success': True,
-            'message': 'Model reloaded successfully'
-        })
-    else:
-        return jsonify({
-            'success': False,
-            'message': 'Failed to reload model'
-        }), 500
+# ==================== LARAVEL REVERSE PROXY GATEWAY ====================
 
+from flask import send_from_directory
 
-# Error handlers
-@app.errorhandler(413)
-def too_large(e):
-    return jsonify({
-        'error': 'File too large',
-        'message': 'Maximum file size is 16MB'
-    }), 413
+# Path absolut ke folder public Laravel
+PUBLIC_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'public'))
 
+@app.route('/', defaults={'path': ''}, methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH'])
+@app.route('/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH'])
+def proxy_to_laravel(path):
+    # 1. Jangan proxy jika endpoint milik Flask API
+    if path in ['predict', 'model-info', 'health', 'classes', 'reload-model']:
+        return "Endpoint handled by Flask API", 404
 
-@app.errorhandler(500)
-def server_error(e):
-    return jsonify({
-        'error': 'Server error',
-        'message': 'An internal server error occurred'
-    }), 500
+    # 2. SEBAIKNYA: Jika file statis (CSS, JS, Gambar, Font) ada di folder public Laravel, serve langsung!
+    requested_file = os.path.join(PUBLIC_DIR, path)
+    if path and os.path.exists(requested_file) and os.path.isfile(requested_file):
+        return send_from_directory(PUBLIC_DIR, path)
 
+    # 3. Jika bukan file statis, kembalikan request ke Laravel di port 8080
+    url = f"{LARAVEL_INTERNAL_URL}/{path}"
+    headers = {k: v for k, v in request.headers if k.lower() not in ['host', 'accept-encoding']}
+    headers['X-Forwarded-Host'] = request.host
+    headers['X-Forwarded-Proto'] = 'https'
+    headers['Accept-Encoding'] = 'identity'
+
+    try:
+        resp = requests.request(
+            method=request.method,
+            url=url,
+            headers=headers,
+            data=request.get_data(),
+            cookies=request.cookies,
+            allow_redirects=False,
+            params=request.args
+        )
+
+        excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
+        response_headers = [(k, v) for k, v in resp.headers.items() if k.lower() not in excluded_headers]
+
+        return Response(resp.content, resp.status_code, response_headers)
+
+    except requests.exceptions.ConnectionError:
+        return "<h2>502 Bad Gateway</h2><p>Service Laravel belum berjalan di port internal 8080.</p>", 502
 
 if __name__ == '__main__':
-    # Development server (port 5001 to avoid macOS AirPlay conflict)
     app.run(host='0.0.0.0', port=5001, debug=True)

@@ -1,0 +1,20 @@
+[2026-08-12 20:44:39 +0700] [2956543] [INFO] Starting gunicorn 26.0.0
+[2026-08-12 20:44:39 +0700] [2956543] [INFO] Listening at: http://127.0.0.1:9010 (2956543)
+[2026-08-12 20:44:39 +0700] [2956543] [INFO] Using worker: sync
+[2026-08-12 20:44:39 +0700] [2956544] [INFO] Booting worker with pid: 2956544
+[2026-08-12 20:44:39 +0700] [2956543] [INFO] Control socket listening at /run/user/1133/gunicorn.ctl
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1786542279.774641 2956544 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+I0000 00:00:1786542279.774914 2956544 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
+I0000 00:00:1786542279.811564 2956544 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1786542280.697266 2956544 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+I0000 00:00:1786542280.697785 2956544 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
+E0000 00:00:1786542281.383015 2956544 cuda_platform.cc:52] failed call to cuInit: INTERNAL: CUDA error: Failed call to cuInit: UNKNOWN ERROR (303)
+WARNING:absl:Compiled the loaded model, but the compiled metrics have yet to be built. `model.compile_metrics` will be empty until you train or evaluate the model.
+[2026-08-12 20:44:44 +0700] [2956543] [INFO] Handling signal: int
+[2026-08-12 20:44:44 +0700] [2956544] [INFO] Worker exiting (pid: 2956544)
+Model loaded from /home/tiunima-lisamenden/htdocs/lisamenden.tiunima.web.id/python-api/trained_models/rice_cnn_model.h5
+Model loaded successfully from /home/tiunima-lisamenden/htdocs/lisamenden.tiunima.web.id/python-api/trained_models/rice_cnn_model.h5
+[2026-08-12 20:44:44 +0700] [2956543] [INFO] Shutting down: Master
